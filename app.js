@@ -19,6 +19,7 @@ $("restchoice").value=String(data.restSeconds);update();
 }
 function elapsed(){if(!data.startedAt)return 0;const end=data.endedAt||Date.now();return Math.max(0,end-data.startedAt-data.sessionPausedMs-(data.sessionPausedAt?end-data.sessionPausedAt:0))}
 function update(){
+updateTimedOverlay();
 const n=data.exercises.reduce((sum,e)=>sum+e.sets.filter(s=>s.completed).length,0);$("count").textContent=n+" / 36";$("progress").style.width=(100*n/36)+"%";$("total").textContent=fmt(elapsed());
 $("setclock").textContent=fmt(data.activeSetAccumMs+(data.activeSetStart?Date.now()-data.activeSetStart:0));
 document.querySelectorAll(".set-timer").forEach(b=>{const x=data.exercises[+b.dataset.timerI].sets[+b.dataset.timerJ];const active=data.activeSetId===x.id;b.textContent=active?(data.activeSetStart?"⏸ "+fmt(data.activeSetAccumMs+Date.now()-data.activeSetStart):"▶ "+fmt(data.activeSetAccumMs)):"▶ Подход"});
@@ -35,9 +36,52 @@ function ensureSession(){if(!data.startedAt){data.startedAt=Date.now();data.stat
 function pauseActive(){if(data.activeSetStart){data.activeSetAccumMs+=Date.now()-data.activeSetStart;data.activeSetStart=null}}
 function stopRest(){if(!data.activeRestSetId)return;const x=data.exercises.flatMap(e=>e.sets).find(v=>v.id===data.activeRestSetId);if(data.restStartedAt){data.restAccumMs+=Date.now()-data.restStartedAt;data.restStartedAt=null}if(x)x.restMs=(x.restMs||0)+data.restAccumMs;data.activeRestSetId=null;data.restAccumMs=0;data.restDeadline=null}
 function restFor(i,j){if(data.endedAt)return;const x=data.exercises[i].sets[j];ensureSession();if(data.activeRestSetId===x.id){if(data.restStartedAt){data.restAccumMs+=Date.now()-data.restStartedAt;data.restStartedAt=null}else data.restStartedAt=Date.now()}else{stopRest();data.activeRestSetId=x.id;data.restAccumMs=0;data.restStartedAt=Date.now()}save();update()}
-function timerFor(i,j){if(data.endedAt)return;const target=data.exercises[i].sets[j];if(target.completed)return;ensureSession();if(data.activeSetId===target.id){if(data.activeSetStart)pauseActive();else data.activeSetStart=Date.now()}else{if(data.activeSetId!==null){pauseActive();const previous=data.exercises.flatMap(e=>e.sets).find(x=>x.id===data.activeSetId);if(previous&&data.activeSetAccumMs)previous.durationMs=(previous.durationMs||0)+data.activeSetAccumMs}data.activeSetId=target.id;data.activeSetAccumMs=0;data.activeSetStart=Date.now()}stopRest();save();update()}
+function timerFor(i,j){if(data.endedAt)return;const target=data.exercises[i].sets[j];if(target.completed)return;ensureSession();if(data.activeSetId===target.id){if(data.activeSetStart)pauseActive();else data.activeSetStart=Date.now()}else{if(data.activeSetId!==null){pauseActive();const previous=data.exercises.flatMap(e=>e.sets).find(x=>x.id===data.activeSetId);if(previous&&data.activeSetAccumMs)previous.durationMs=(previous.durationMs||0)+data.activeSetAccumMs}data.activeSetId=target.id;data.activeSetAccumMs=0;data.activeSetStart=Date.now()}stopRest();save();if(data.exercises[i].unit==="seconds")openTimedOverlay(i,j);update()}
 function completeSet(i,j,checked){const target=data.exercises[i].sets[j];target.completed=checked;target.completedAt=checked?new Date().toISOString():null;if(checked){ensureSession();if(data.activeSetId===target.id){pauseActive();target.durationMs=(target.durationMs||0)+data.activeSetAccumMs;data.activeSetId=null;data.activeSetAccumMs=0}stopRest();data.activeRestSetId=target.id;data.restAccumMs=0;data.restStartedAt=Date.now()}save();render()}
-$("exercises").addEventListener("click",ev=>{const t=ev.target.closest("button");if(!t)return;if(t.classList.contains("set-timer"))timerFor(+t.dataset.timerI,+t.dataset.timerJ);if(t.classList.contains("set-done"))completeSet(+t.dataset.doneI,+t.dataset.doneJ,true);if(t.classList.contains("rest-set"))restFor(+t.dataset.restI,+t.dataset.restJ)});
+
+let timedOverlay=null;
+function openTimedOverlay(i,j){
+ const set=data.exercises[i].sets[j],ex=data.exercises[i];
+ if(ex.unit!=="seconds")return;
+ timedOverlay={i,j};
+ $("timed-name").textContent=ex.name+" · подход "+(j+1);
+ $("timed-overlay").hidden=false;
+ document.body.classList.add("timed-open");
+ updateTimedOverlay();
+}
+function closeTimedOverlay(){
+ timedOverlay=null;$("timed-overlay").hidden=true;document.body.classList.remove("timed-open");
+}
+function updateTimedOverlay(){
+ if(!timedOverlay)return;
+ const {i,j}=timedOverlay,set=data.exercises[i].sets[j];
+ const duration=Math.max(1,Number(set.value)||30)*1000;
+ const active=data.activeSetId===set.id;
+ const passed=active?data.activeSetAccumMs+(data.activeSetStart?Date.now()-data.activeSetStart:0):(set.durationMs||0);
+ const remaining=Math.max(0,duration-passed);
+ const progress=Math.max(0,Math.min(1,remaining/duration));
+ const ring=$("timed-progress"),circumference=2*Math.PI*112;
+ ring.style.strokeDasharray=String(circumference);
+ ring.style.strokeDashoffset=String(circumference*(1-progress));
+ $("timed-clock").textContent=String(Math.ceil(remaining/1000));
+ $("timed-subtitle").textContent=remaining===0?"Время вышло":active&&data.activeSetStart?"Осталось секунд":active?"На паузе":"Подход завершён";
+ $("timed-toggle").textContent=remaining===0?"Повторить":active&&data.activeSetStart?"⏸ Пауза":"▶ Продолжить";
+ $("timed-done").textContent="✓ Завершить подход";
+ if(active&&data.activeSetStart&&remaining===0){pauseActive();save();}
+}
+$("timed-close").onclick=closeTimedOverlay;
+$("timed-toggle").onclick=()=>{
+ if(!timedOverlay)return;
+ const {i,j}=timedOverlay,set=data.exercises[i].sets[j];
+ const passed=data.activeSetId===set.id?data.activeSetAccumMs+(data.activeSetStart?Date.now()-data.activeSetStart:0):0;
+ if(passed>=Math.max(1,Number(set.value)||30)*1000){
+   if(data.activeSetId===set.id){data.activeSetAccumMs=0;data.activeSetStart=null;}
+ }
+ timerFor(i,j);
+};
+$("timed-done").onclick=()=>{if(!timedOverlay)return;const {i,j}=timedOverlay;completeSet(i,j,true);closeTimedOverlay()};
+
+$("exercises").addEventListener("click",ev=>{const t=ev.target.closest("button");if(!t)return;if(t.classList.contains("set-timer"))timerFor(+t.dataset.timerI,+t.dataset.timerJ);if(t.classList.contains("set-done")){completeSet(+t.dataset.doneI,+t.dataset.doneJ,true);if(timedOverlay&&timedOverlay.i===+t.dataset.doneI&&timedOverlay.j===+t.dataset.doneJ)closeTimedOverlay()}if(t.classList.contains("rest-set"))restFor(+t.dataset.restI,+t.dataset.restJ)});
 $("exercises").addEventListener("change",ev=>{const t=ev.target;if(!t.dataset.field)return;const s=data.exercises[+t.dataset.i].sets[+t.dataset.j];if(t.dataset.field==="completed"){completeSet(+t.dataset.i,+t.dataset.j,t.checked);return;}else{s[t.dataset.field]=t.value===""?null:Number(t.value)}save();update()});
 $("session").onclick=()=>{if(data.endedAt)return;if(!data.startedAt){data.startedAt=Date.now();data.status="in_progress"}else if(data.sessionPausedAt){data.sessionPausedMs+=Date.now()-data.sessionPausedAt;data.sessionPausedAt=null}else data.sessionPausedAt=Date.now();save();update()};
 $("finish").onclick=()=>{if(!data.startedAt||data.endedAt)return;if(!confirm("Завершить тренировку?"))return;data.endedAt=Date.now();if(data.sessionPausedAt){data.sessionPausedMs+=data.endedAt-data.sessionPausedAt;data.sessionPausedAt=null}data.status="completed";stopRest();pauseActive();if(data.activeSetId){const x=data.exercises.flatMap(e=>e.sets).find(v=>v.id===data.activeSetId);if(x)x.durationMs=(x.durationMs||0)+data.activeSetAccumMs}data.activeSetId=null;data.activeSetAccumMs=0;data.restDeadline=null;save();update()};
