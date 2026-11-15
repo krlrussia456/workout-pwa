@@ -5,12 +5,16 @@ const KEY="food-diary-pwa-session-v1";
 const HISTORY_KEY="workout-pwa-history-v2";
 const PLAN_DATE="2026-11-17";
 const PLAN17=[["Отжимания",2,15,null,"reps","свой вес"],["Обратные скручивания",2,20,null,"reps","без веса"],["Тяга гантели с опорой",3,10,16,"perSide","на руку"],["Мёртвый жук",2,18,null,"perSide","на сторону"],["Жим гантелей лёжа",2,15,14.5,"reps","кг/гантель"],["Жим гантелей узко лёжа",2,12,15,"reps","кг/гантель"],["Ягодичный мост",3,20,null,"reps","без веса"],["Жим гантелей вверх сидя",2,10,15,"reps","до 15 кг"],["Сгибания на бицепс сидя",2,10,15,"perSide","на руку"],["Молотковые сгибания",2,12,15,"perSide","на руку"],["Разгибание на трицепс лёжа",2,12,9,"reps","кг"],["Разведения в стороны сидя",2,12,5,"reps","4–5 кг"],["Обратные разведения сидя",2,12,3,"reps","3–4 кг"],["Шраги сидя",3,15,15,"reps","кг/гантель"],["Прямые скручивания",3,20,null,"reps","без веса"],["Планка",2,45,null,"seconds","секунды"]];
-const plans={"2026-11-15":PLAN,"2026-11-17":PLAN17};
+const PLAN16=[["Обратные скручивания",2,15,null,"reps","без веса"],["Мёртвый жук",2,12,null,"perSide","на сторону"],["Прямые скручивания",2,15,null,"reps","без веса"],["Планка",2,30,null,"seconds","секунды"]];
+const plans={"2026-11-15":PLAN,"2026-11-16":PLAN16,"2026-11-17":PLAN17};
 let history={};try{history=JSON.parse(localStorage.getItem(HISTORY_KEY))||{}}catch{history={}};
 const localDate=()=>{const d=new Date(),p=n=>String(n).padStart(2,"0");return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
 const fresh=(date=PLAN_DATE)=>({schemaVersion:1,id:crypto.randomUUID(),date,source:"plans/workout-"+date+".md",status:"planned",startedAt:null,endedAt:null,sessionPausedAt:null,sessionPausedMs:0,activeSetStart:null,activeSetAccumMs:0,activeSetId:null,restDeadline:null,restRemainingMs:90000,restSeconds:90,activeRestSetId:null,restStartedAt:null,restAccumMs:0,exercises:(plans[date]||PLAN17).map((p,i)=>({id:"exercise-"+i,name:p[0],unit:p[4],sets:Array.from({length:p[1]},(_,j)=>({id:"set-"+i+"-"+j,plannedWeightKg:p[3],plannedValue:p[2],weightKg:p[3],value:p[2],completed:false,durationMs:null,restMs:null,restSeconds:90,completedAt:null}))}))});
 let data;try{data=JSON.parse(localStorage.getItem(KEY))}catch{}if(!data||data.schemaVersion!==1)data=fresh();
 if(data&&data.date&&!history[data.date])history[data.date]=data;
+// Repair the incorrectly generated 16 Nov session only if no sets or timers were used.
+const wrong16=history["2026-11-16"];
+if(wrong16&&wrong16.exercises?.length===16&&!wrong16.startedAt&&!wrong16.endedAt&&wrong16.exercises.every(e=>e.sets.every(s=>!s.completed&&s.durationMs===null))){const corrected=fresh("2026-11-16");history["2026-11-16"]=corrected;if(data.date==="2026-11-16")data=corrected;localStorage.setItem(HISTORY_KEY,JSON.stringify(history));}
 const persistHistory=()=>{history[data.date]=data;localStorage.setItem(HISTORY_KEY,JSON.stringify(history))};
 if(data.activeRestSetId===undefined)data.activeRestSetId=null;
 if(data.restStartedAt===undefined)data.restStartedAt=null;
