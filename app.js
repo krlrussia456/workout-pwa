@@ -20,6 +20,7 @@ $("restchoice").value=String(data.restSeconds);update();
 function elapsed(){if(!data.startedAt)return 0;const end=data.endedAt||Date.now();return Math.max(0,end-data.startedAt-data.sessionPausedMs-(data.sessionPausedAt?end-data.sessionPausedAt:0))}
 function update(){
 updateTimedOverlay();
+updateRestAudio();
 const n=data.exercises.reduce((sum,e)=>sum+e.sets.filter(s=>s.completed).length,0);$("count").textContent=n+" / 36";$("progress").style.width=(100*n/36)+"%";$("total").textContent=fmt(elapsed());
 $("setclock").textContent=fmt(data.activeSetAccumMs+(data.activeSetStart?Date.now()-data.activeSetStart:0));
 document.querySelectorAll(".set-timer").forEach(b=>{const x=data.exercises[+b.dataset.timerI].sets[+b.dataset.timerJ];const active=data.activeSetId===x.id;b.textContent=active?(data.activeSetStart?"⏸ "+fmt(data.activeSetAccumMs+Date.now()-data.activeSetStart):"▶ "+fmt(data.activeSetAccumMs)):"▶ Подход"});
@@ -34,10 +35,20 @@ if(activeRest&&data.restStartedAt&&restPassed>=activeRest.restSeconds*1000){stop
 }
 function ensureSession(){if(!data.startedAt){data.startedAt=Date.now();data.status="in_progress"}}
 function pauseActive(){if(data.activeSetStart){data.activeSetAccumMs+=Date.now()-data.activeSetStart;data.activeSetStart=null}}
-function stopRest(){if(!data.activeRestSetId)return;const x=data.exercises.flatMap(e=>e.sets).find(v=>v.id===data.activeRestSetId);if(data.restStartedAt){data.restAccumMs+=Date.now()-data.restStartedAt;data.restStartedAt=null}if(x)x.restMs=(x.restMs||0)+data.restAccumMs;data.activeRestSetId=null;data.restAccumMs=0;data.restDeadline=null}
-function restFor(i,j){if(data.endedAt)return;const x=data.exercises[i].sets[j];ensureSession();if(data.activeRestSetId===x.id){if(data.restStartedAt){data.restAccumMs+=Date.now()-data.restStartedAt;data.restStartedAt=null}else data.restStartedAt=Date.now()}else{stopRest();data.activeRestSetId=x.id;data.restAccumMs=0;data.restStartedAt=Date.now()}save();update()}
+let restAudioId=null,restLastBeepSecond=null,restGongPlayed=false;
+function updateRestAudio(){
+ if(!data.activeRestSetId||!data.restStartedAt)return;
+ const set=data.exercises.flatMap(e=>e.sets).find(x=>x.id===data.activeRestSetId);if(!set)return;
+ const remaining=Math.max(0,set.restSeconds*1000-data.restAccumMs-(Date.now()-data.restStartedAt));
+ const sec=Math.ceil(remaining/1000);
+ if(sec>=1&&sec<=5&&restLastBeepSecond!==sec){restLastBeepSecond=sec;countdownBeep(sec)}
+ if(remaining<=0&&!restGongPlayed){restGongPlayed=true;gongSound()}
+}
+function beginRestAudio(id){restAudioId=id;restLastBeepSecond=null;restGongPlayed=false;startSound()}
+function stopRest(){if(!data.activeRestSetId)return;const x=data.exercises.flatMap(e=>e.sets).find(v=>v.id===data.activeRestSetId);if(data.restStartedAt){data.restAccumMs+=Date.now()-data.restStartedAt;data.restStartedAt=null}if(x)x.restMs=(x.restMs||0)+data.restAccumMs;data.activeRestSetId=null;data.restAccumMs=0;data.restDeadline=null;restAudioId=null;restLastBeepSecond=null;restGongPlayed=false}
+function restFor(i,j){if(data.endedAt)return;const x=data.exercises[i].sets[j];ensureSession();if(data.activeRestSetId===x.id){if(data.restStartedAt){data.restAccumMs+=Date.now()-data.restStartedAt;data.restStartedAt=null}else {data.restStartedAt=Date.now();audioReady()}}else{stopRest();data.activeRestSetId=x.id;data.restAccumMs=0;data.restStartedAt=Date.now();beginRestAudio(x.id)}save();update()}
 function timerFor(i,j){if(data.endedAt)return;const target=data.exercises[i].sets[j];if(target.completed)return;ensureSession();if(data.activeSetId===target.id){if(data.activeSetStart)pauseActive();else data.activeSetStart=Date.now()}else{if(data.activeSetId!==null){pauseActive();const previous=data.exercises.flatMap(e=>e.sets).find(x=>x.id===data.activeSetId);if(previous&&data.activeSetAccumMs)previous.durationMs=(previous.durationMs||0)+data.activeSetAccumMs}data.activeSetId=target.id;data.activeSetAccumMs=0;data.activeSetStart=Date.now()}stopRest();save();if(data.exercises[i].unit==="seconds"){openTimedOverlay(i,j);if(data.activeSetStart)startSound()}update()}
-function completeSet(i,j,checked){const target=data.exercises[i].sets[j];target.completed=checked;target.completedAt=checked?new Date().toISOString():null;if(checked){ensureSession();if(data.activeSetId===target.id){pauseActive();target.durationMs=(target.durationMs||0)+data.activeSetAccumMs;data.activeSetId=null;data.activeSetAccumMs=0}stopRest();data.activeRestSetId=target.id;data.restAccumMs=0;data.restStartedAt=Date.now()}save();render()}
+function completeSet(i,j,checked){const target=data.exercises[i].sets[j];target.completed=checked;target.completedAt=checked?new Date().toISOString():null;if(checked){ensureSession();if(data.activeSetId===target.id){pauseActive();target.durationMs=(target.durationMs||0)+data.activeSetAccumMs;data.activeSetId=null;data.activeSetAccumMs=0}stopRest();data.activeRestSetId=target.id;data.restAccumMs=0;data.restStartedAt=Date.now();beginRestAudio(target.id)}save();render()}
 
 let audioContext=null, soundEnabled=localStorage.getItem("workout-sound-enabled")!=="false";
 function audioReady(){if(!soundEnabled)return null;try{audioContext??=new (window.AudioContext||window.webkitAudioContext)();if(audioContext.state==="suspended")audioContext.resume().catch(()=>{});return audioContext}catch{return null}}
