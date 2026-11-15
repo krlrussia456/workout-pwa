@@ -44,7 +44,8 @@ function audioReady(){if(!soundEnabled)return null;try{audioContext??=new (windo
 function tone(freq,at,duration,volume=0.13,type="sine"){const ctx=audioReady();if(!ctx)return;const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,at);gain.gain.setValueAtTime(0.0001,at);gain.gain.exponentialRampToValueAtTime(volume,at+0.012);gain.gain.exponentialRampToValueAtTime(0.0001,at+duration);osc.connect(gain).connect(ctx.destination);osc.start(at);osc.stop(at+duration+0.02)}
 function startSound(){const ctx=audioReady();if(!ctx)return;const t=ctx.currentTime+0.03;tone(740,t,0.12);tone(740,t+0.24,0.12);tone(1046,t+0.5,0.38,0.18)}
 function gongSound(){const ctx=audioReady();if(!ctx)return;const t=ctx.currentTime+0.02;for(const [f,v,d] of [[392,.16,2.2],[587.3,.08,1.7],[784,.05,1.3],[1046.5,.025,.9]]){const osc=ctx.createOscillator(),g=ctx.createGain();osc.type="sine";osc.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.025);g.gain.exponentialRampToValueAtTime(.0001,t+d);osc.connect(g).connect(ctx.destination);osc.start(t);osc.stop(t+d+.03)}}
-let timedGongSetId=null;
+let timedGongSetId=null, timedLastBeepSecond=null;
+function countdownBeep(second){const ctx=audioReady();if(!ctx)return;tone(second===1?1046:660,ctx.currentTime+0.01,0.11,0.12)}
 function refreshSoundButton(){$("timed-sound").textContent=soundEnabled?"🔊 Звук включён":"🔇 Без звука"}
 $("timed-sound").onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem("workout-sound-enabled",String(soundEnabled));if(soundEnabled)audioReady();refreshSoundButton()};
 let timedOverlay=null;
@@ -53,6 +54,7 @@ function openTimedOverlay(i,j){
  if(ex.unit!=="seconds")return;
  timedOverlay={i,j};
  timedGongSetId=null;
+ timedLastBeepSecond=null;
  refreshSoundButton();
  $("timed-name").textContent=ex.name+" · подход "+(j+1);
  $("timed-overlay").hidden=false;
@@ -77,6 +79,9 @@ function updateTimedOverlay(){
  $("timed-subtitle").textContent=remaining===0?"Время вышло":active&&data.activeSetStart?"Осталось секунд":active?"На паузе":"Подход завершён";
  $("timed-toggle").textContent=remaining===0?"Повторить":active&&data.activeSetStart?"⏸ Пауза":"▶ Продолжить";
  $("timed-done").textContent="✓ Завершить подход";
+ const remainingSeconds=Math.ceil(remaining/1000);
+ if(active&&data.activeSetStart&&remainingSeconds>=1&&remainingSeconds<=5&&timedLastBeepSecond!==remainingSeconds){timedLastBeepSecond=remainingSeconds;countdownBeep(remainingSeconds)}
+ if(remainingSeconds>5)timedLastBeepSecond=null;
  if(active&&data.activeSetStart&&remaining===0){if(timedGongSetId!==set.id){timedGongSetId=set.id;gongSound()}pauseActive();save();}
 }
 $("timed-close").onclick=closeTimedOverlay;
@@ -88,7 +93,7 @@ $("timed-toggle").onclick=()=>{
    if(data.activeSetId===set.id){data.activeSetAccumMs=0;data.activeSetStart=null;}
  }
  timerFor(i,j);
- if(data.activeSetStart){timedGongSetId=null;startSound()}
+ if(data.activeSetStart){timedGongSetId=null;timedLastBeepSecond=null;startSound()}
 };
 $("timed-done").onclick=()=>{if(!timedOverlay)return;const {i,j}=timedOverlay;completeSet(i,j,true);closeTimedOverlay()};
 
