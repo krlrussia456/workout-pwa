@@ -36,14 +36,24 @@ function ensureSession(){if(!data.startedAt){data.startedAt=Date.now();data.stat
 function pauseActive(){if(data.activeSetStart){data.activeSetAccumMs+=Date.now()-data.activeSetStart;data.activeSetStart=null}}
 function stopRest(){if(!data.activeRestSetId)return;const x=data.exercises.flatMap(e=>e.sets).find(v=>v.id===data.activeRestSetId);if(data.restStartedAt){data.restAccumMs+=Date.now()-data.restStartedAt;data.restStartedAt=null}if(x)x.restMs=(x.restMs||0)+data.restAccumMs;data.activeRestSetId=null;data.restAccumMs=0;data.restDeadline=null}
 function restFor(i,j){if(data.endedAt)return;const x=data.exercises[i].sets[j];ensureSession();if(data.activeRestSetId===x.id){if(data.restStartedAt){data.restAccumMs+=Date.now()-data.restStartedAt;data.restStartedAt=null}else data.restStartedAt=Date.now()}else{stopRest();data.activeRestSetId=x.id;data.restAccumMs=0;data.restStartedAt=Date.now()}save();update()}
-function timerFor(i,j){if(data.endedAt)return;const target=data.exercises[i].sets[j];if(target.completed)return;ensureSession();if(data.activeSetId===target.id){if(data.activeSetStart)pauseActive();else data.activeSetStart=Date.now()}else{if(data.activeSetId!==null){pauseActive();const previous=data.exercises.flatMap(e=>e.sets).find(x=>x.id===data.activeSetId);if(previous&&data.activeSetAccumMs)previous.durationMs=(previous.durationMs||0)+data.activeSetAccumMs}data.activeSetId=target.id;data.activeSetAccumMs=0;data.activeSetStart=Date.now()}stopRest();save();if(data.exercises[i].unit==="seconds")openTimedOverlay(i,j);update()}
+function timerFor(i,j){if(data.endedAt)return;const target=data.exercises[i].sets[j];if(target.completed)return;ensureSession();if(data.activeSetId===target.id){if(data.activeSetStart)pauseActive();else data.activeSetStart=Date.now()}else{if(data.activeSetId!==null){pauseActive();const previous=data.exercises.flatMap(e=>e.sets).find(x=>x.id===data.activeSetId);if(previous&&data.activeSetAccumMs)previous.durationMs=(previous.durationMs||0)+data.activeSetAccumMs}data.activeSetId=target.id;data.activeSetAccumMs=0;data.activeSetStart=Date.now()}stopRest();save();if(data.exercises[i].unit==="seconds"){openTimedOverlay(i,j);if(data.activeSetStart)startSound()}update()}
 function completeSet(i,j,checked){const target=data.exercises[i].sets[j];target.completed=checked;target.completedAt=checked?new Date().toISOString():null;if(checked){ensureSession();if(data.activeSetId===target.id){pauseActive();target.durationMs=(target.durationMs||0)+data.activeSetAccumMs;data.activeSetId=null;data.activeSetAccumMs=0}stopRest();data.activeRestSetId=target.id;data.restAccumMs=0;data.restStartedAt=Date.now()}save();render()}
 
+let audioContext=null, soundEnabled=localStorage.getItem("workout-sound-enabled")!=="false";
+function audioReady(){if(!soundEnabled)return null;try{audioContext??=new (window.AudioContext||window.webkitAudioContext)();if(audioContext.state==="suspended")audioContext.resume().catch(()=>{});return audioContext}catch{return null}}
+function tone(freq,at,duration,volume=0.13,type="sine"){const ctx=audioReady();if(!ctx)return;const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,at);gain.gain.setValueAtTime(0.0001,at);gain.gain.exponentialRampToValueAtTime(volume,at+0.012);gain.gain.exponentialRampToValueAtTime(0.0001,at+duration);osc.connect(gain).connect(ctx.destination);osc.start(at);osc.stop(at+duration+0.02)}
+function startSound(){const ctx=audioReady();if(!ctx)return;const t=ctx.currentTime+0.03;tone(740,t,0.12);tone(740,t+0.24,0.12);tone(1046,t+0.5,0.38,0.18)}
+function gongSound(){const ctx=audioReady();if(!ctx)return;const t=ctx.currentTime+0.02;for(const [f,v,d] of [[392,.16,2.2],[587.3,.08,1.7],[784,.05,1.3],[1046.5,.025,.9]]){const osc=ctx.createOscillator(),g=ctx.createGain();osc.type="sine";osc.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.025);g.gain.exponentialRampToValueAtTime(.0001,t+d);osc.connect(g).connect(ctx.destination);osc.start(t);osc.stop(t+d+.03)}}
+let timedGongSetId=null;
+function refreshSoundButton(){$("timed-sound").textContent=soundEnabled?"🔊 Звук включён":"🔇 Без звука"}
+$("timed-sound").onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem("workout-sound-enabled",String(soundEnabled));if(soundEnabled)audioReady();refreshSoundButton()};
 let timedOverlay=null;
 function openTimedOverlay(i,j){
  const set=data.exercises[i].sets[j],ex=data.exercises[i];
  if(ex.unit!=="seconds")return;
  timedOverlay={i,j};
+ timedGongSetId=null;
+ refreshSoundButton();
  $("timed-name").textContent=ex.name+" · подход "+(j+1);
  $("timed-overlay").hidden=false;
  document.body.classList.add("timed-open");
@@ -67,7 +77,7 @@ function updateTimedOverlay(){
  $("timed-subtitle").textContent=remaining===0?"Время вышло":active&&data.activeSetStart?"Осталось секунд":active?"На паузе":"Подход завершён";
  $("timed-toggle").textContent=remaining===0?"Повторить":active&&data.activeSetStart?"⏸ Пауза":"▶ Продолжить";
  $("timed-done").textContent="✓ Завершить подход";
- if(active&&data.activeSetStart&&remaining===0){pauseActive();save();}
+ if(active&&data.activeSetStart&&remaining===0){if(timedGongSetId!==set.id){timedGongSetId=set.id;gongSound()}pauseActive();save();}
 }
 $("timed-close").onclick=closeTimedOverlay;
 $("timed-toggle").onclick=()=>{
@@ -78,6 +88,7 @@ $("timed-toggle").onclick=()=>{
    if(data.activeSetId===set.id){data.activeSetAccumMs=0;data.activeSetStart=null;}
  }
  timerFor(i,j);
+ if(data.activeSetStart){timedGongSetId=null;startSound()}
 };
 $("timed-done").onclick=()=>{if(!timedOverlay)return;const {i,j}=timedOverlay;completeSet(i,j,true);closeTimedOverlay()};
 
