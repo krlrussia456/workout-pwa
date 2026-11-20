@@ -17,6 +17,8 @@ if(data&&data.date&&!history[data.date])history[data.date]=data;
 // Repair the incorrectly generated 16 Nov session only if no sets or timers were used.
 const wrong16=history["2026-11-16"];
 if(wrong16&&wrong16.exercises?.length===16&&!wrong16.startedAt&&!wrong16.endedAt&&wrong16.exercises.every(e=>e.sets.every(s=>!s.completed&&s.durationMs===null))){const corrected=fresh("2026-11-16");history["2026-11-16"]=corrected;if(data.date==="2026-11-16")data=corrected;localStorage.setItem(HISTORY_KEY,JSON.stringify(history));}
+// Repair untouched auto-generated fallback sessions after adding date-specific plans.
+for(const day of ["2026-11-20","2026-11-21"]){const old=history[day],template=plans[day];if(old&&template&&old.exercises?.length!==template.length&&!old.startedAt&&!old.endedAt&&old.exercises.every(e=>e.sets.every(x=>!x.completed&&x.durationMs===null))){const fixed=fresh(day);history[day]=fixed;if(data.date===day)data=fixed;localStorage.setItem(HISTORY_KEY,JSON.stringify(history));}}
 const persistHistory=()=>{history[data.date]=data;localStorage.setItem(HISTORY_KEY,JSON.stringify(history))};
 if(data.activeRestSetId===undefined)data.activeRestSetId=null;
 if(data.restStartedAt===undefined)data.restStartedAt=null;
