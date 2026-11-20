@@ -6,7 +6,7 @@ const HISTORY_KEY="workout-pwa-history-v2";
 const PLAN_DATE="2026-11-17";
 const PLAN17=[["Отжимания",2,15,null,"reps","свой вес"],["Обратные скручивания",2,20,null,"reps","без веса"],["Тяга гантели с опорой",3,10,16,"perSide","на руку"],["Мёртвый жук",2,18,null,"perSide","на сторону"],["Жим гантелей лёжа",2,15,14.5,"reps","кг/гантель"],["Жим гантелей узко лёжа",2,12,15,"reps","кг/гантель"],["Ягодичный мост",3,20,null,"reps","без веса"],["Жим гантелей вверх сидя",2,10,15,"reps","до 15 кг"],["Сгибания на бицепс сидя",2,10,15,"perSide","на руку"],["Молотковые сгибания",2,12,15,"perSide","на руку"],["Разгибание на трицепс лёжа",2,12,9,"reps","кг"],["Разведения в стороны сидя",2,12,5,"reps","4–5 кг"],["Обратные разведения сидя",2,12,3,"reps","3–4 кг"],["Шраги сидя",3,15,15,"reps","кг/гантель"],["Прямые скручивания",3,20,null,"reps","без веса"],["Планка",2,45,null,"seconds","секунды"]];
 const PLAN16=[["Обратные скручивания",2,15,null,"reps","без веса"],["Мёртвый жук",2,12,null,"perSide","на сторону"],["Прямые скручивания",2,15,null,"reps","без веса"],["Планка",2,30,null,"seconds","секунды"]];
-const PLAN20=[["Обратные скручивания",2,15,null,"reps","без веса"],["Мёртвый жук",2,12,null,"perSide","на сторону"],["Ягодичный мост",2,20,null,"reps","без веса"],["Планка",2,35,null,"seconds","секунды"]];
+const PLAN20=[["Обратные скручивания",3,15,null,"reps","без веса"],["Мёртвый жук",3,12,null,"perSide","на сторону"],["Ягодичный мост",3,20,null,"reps","без веса"],["Планка",3,35,null,"seconds","секунды"]];
 const PLAN21=[["Отжимания",2,12,null,"reps","свой вес"],["Обратные скручивания",2,15,null,"reps","без веса"],["Тяга гантели с опорой",3,10,16,"perSide","на руку"],["Мёртвый жук",2,15,null,"perSide","на сторону"],["Жим гантелей лёжа",2,12,14.5,"reps","кг/гантель"],["Ягодичный мост",3,20,null,"reps","без веса"],["Жим гантелей вверх сидя",2,8,12,"reps","кг/гантель"],["Разведения в стороны сидя",2,12,5,"reps","кг/гантель"],["Обратные разведения сидя",2,12,3,"reps","кг/гантель"],["Сгибания на бицепс сидя",2,10,12,"perSide","на руку"],["Шраги сидя",2,15,15,"reps","кг/гантель"],["Планка",2,40,null,"seconds","секунды"]];
 const plans={"2026-11-15":PLAN,"2026-11-16":PLAN16,"2026-11-17":PLAN17,"2026-11-20":PLAN20,"2026-11-21":PLAN21};
 let history={};try{history=JSON.parse(localStorage.getItem(HISTORY_KEY))||{}}catch{history={}};
@@ -19,6 +19,15 @@ const wrong16=history["2026-11-16"];
 if(wrong16&&wrong16.exercises?.length===16&&!wrong16.startedAt&&!wrong16.endedAt&&wrong16.exercises.every(e=>e.sets.every(s=>!s.completed&&s.durationMs===null))){const corrected=fresh("2026-11-16");history["2026-11-16"]=corrected;if(data.date==="2026-11-16")data=corrected;localStorage.setItem(HISTORY_KEY,JSON.stringify(history));}
 // Repair untouched auto-generated fallback sessions after adding date-specific plans.
 for(const day of ["2026-11-20","2026-11-21"]){const old=history[day],template=plans[day];if(old&&template&&old.exercises?.length!==template.length&&!old.startedAt&&!old.endedAt&&old.exercises.every(e=>e.sets.every(x=>!x.completed&&x.durationMs===null))){const fixed=fresh(day);history[day]=fixed;if(data.date===day)data=fixed;localStorage.setItem(HISTORY_KEY,JSON.stringify(history));}}
+// Add a third set to the November 20 recovery session without losing recorded sets.
+const session20=history["2026-11-20"];
+if(session20&&session20.exercises?.length===PLAN20.length&&session20.exercises.every((e,i)=>e.name===PLAN20[i][0]&&e.sets.length===2)){
+  session20.exercises.forEach((e,i)=>{const last=e.sets[1];e.sets.push({id:"set-"+i+"-2",plannedWeightKg:PLAN20[i][3],plannedValue:PLAN20[i][2],weightKg:PLAN20[i][3],value:PLAN20[i][2],completed:false,durationMs:null,restMs:null,restSeconds:last?.restSeconds||90,completedAt:null});});
+  history["2026-11-20"]=session20;
+  if(data.date==="2026-11-20")data=session20;
+  localStorage.setItem(HISTORY_KEY,JSON.stringify(history));
+  localStorage.setItem(KEY,JSON.stringify(data));
+}
 const persistHistory=()=>{history[data.date]=data;localStorage.setItem(HISTORY_KEY,JSON.stringify(history))};
 if(data.activeRestSetId===undefined)data.activeRestSetId=null;
 if(data.restStartedAt===undefined)data.restStartedAt=null;
