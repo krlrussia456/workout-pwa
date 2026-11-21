@@ -7,12 +7,14 @@ const PLAN_DATE="2026-11-17";
 const PLAN17=[["Отжимания",2,15,null,"reps","свой вес"],["Обратные скручивания",2,20,null,"reps","без веса"],["Тяга гантели с опорой",3,10,16,"perSide","на руку"],["Мёртвый жук",2,18,null,"perSide","на сторону"],["Жим гантелей лёжа",2,15,14.5,"reps","кг/гантель"],["Жим гантелей узко лёжа",2,12,15,"reps","кг/гантель"],["Ягодичный мост",3,20,null,"reps","без веса"],["Жим гантелей вверх сидя",2,10,15,"reps","до 15 кг"],["Сгибания на бицепс сидя",2,10,15,"perSide","на руку"],["Молотковые сгибания",2,12,15,"perSide","на руку"],["Разгибание на трицепс лёжа",2,12,9,"reps","кг"],["Разведения в стороны сидя",2,12,5,"reps","4–5 кг"],["Обратные разведения сидя",2,12,3,"reps","3–4 кг"],["Шраги сидя",3,15,15,"reps","кг/гантель"],["Прямые скручивания",3,20,null,"reps","без веса"],["Планка",2,45,null,"seconds","секунды"]];
 const PLAN16=[["Обратные скручивания",2,15,null,"reps","без веса"],["Мёртвый жук",2,12,null,"perSide","на сторону"],["Прямые скручивания",2,15,null,"reps","без веса"],["Планка",2,30,null,"seconds","секунды"]];
 const PLAN20=[["Обратные скручивания",3,15,null,"reps","без веса"],["Мёртвый жук",3,12,null,"perSide","на сторону"],["Ягодичный мост",3,20,null,"reps","без веса"],["Планка",3,35,null,"seconds","секунды"]];
-const PLAN21=[["Отжимания",2,12,null,"reps","свой вес"],["Обратные скручивания",2,15,null,"reps","без веса"],["Тяга гантели с опорой",3,10,16,"perSide","на руку"],["Мёртвый жук",2,15,null,"perSide","на сторону"],["Жим гантелей лёжа",2,12,14.5,"reps","кг/гантель"],["Ягодичный мост",3,20,null,"reps","без веса"],["Жим гантелей вверх сидя",2,8,12,"reps","кг/гантель"],["Разведения в стороны сидя",2,12,5,"reps","кг/гантель"],["Обратные разведения сидя",2,12,3,"reps","кг/гантель"],["Сгибания на бицепс сидя",2,10,12,"perSide","на руку"],["Шраги сидя",2,15,15,"reps","кг/гантель"],["Планка",2,40,null,"seconds","секунды"]];
-const plans={"2026-11-15":PLAN,"2026-11-16":PLAN16,"2026-11-17":PLAN17,"2026-11-20":PLAN20,"2026-11-21":PLAN21};
+const PLAN21=[["Отжимания",2,15,null,"reps","свой вес"],["Разгибание на трицепс лёжа",2,20,5,"reps","кг/гантель"],["Разведения в стороны сидя",2,12,5,"reps","кг/гантель"],["Обратные разведения сидя",2,12,5,"reps","кг/гантель"],["Тяга гантели с опорой",3,10,15,"perSide","на руку"],["Жим гантелей лёжа",2,15,15,"reps","кг/гантель"],["Жим гантелей узко лёжа",2,12,15,"reps","кг/гантель"],["Жим гантелей вверх сидя",2,10,15,"reps","кг/гантель"],["Сгибания на бицепс сидя",2,10,15,"perSide","на руку"],["Молотковые сгибания",2,12,15,"perSide","на руку"],["Шраги сидя",3,15,15,"reps","кг/гантель"],["Обратные скручивания",2,20,null,"reps","без веса"],["Мёртвый жук",2,18,null,"perSide","на сторону"],["Ягодичный мост",3,20,null,"reps","без веса"],["Прямые скручивания",3,20,null,"reps","без веса"],["Планка",2,45,null,"seconds","секунды"]];
+const PLAN22=[["Обратные скручивания",3,15,null,"reps","без веса"],["Мёртвый жук",3,12,null,"perSide","на сторону"],["Ягодичный мост",3,20,null,"reps","без веса"],["Планка",3,35,null,"seconds","секунды"]];
+const PLAN23=[["Тяга гантели с опорой",3,10,15,"perSide","на руку"],["Жим гантелей лёжа",2,15,15,"reps","кг/гантель"],["Жим гантелей узко лёжа",2,12,15,"reps","кг/гантель"],["Жим гантелей вверх сидя",2,10,15,"reps","кг/гантель"],["Сгибания на бицепс сидя",2,10,15,"perSide","на руку"],["Молотковые сгибания",2,12,15,"perSide","на руку"],["Шраги сидя",3,15,15,"reps","кг/гантель"],["Разгибание на трицепс лёжа",2,20,5,"reps","кг/гантель"],["Разведения в стороны сидя",2,12,5,"reps","кг/гантель"],["Обратные разведения сидя",2,12,5,"reps","кг/гантель"],["Отжимания",2,15,null,"reps","свой вес"],["Обратные скручивания",2,20,null,"reps","без веса"],["Мёртвый жук",2,18,null,"perSide","на сторону"],["Ягодичный мост",3,20,null,"reps","без веса"],["Прямые скручивания",3,20,null,"reps","без веса"],["Планка",2,45,null,"seconds","секунды"]];
+const plans={"2026-11-15":PLAN,"2026-11-16":PLAN16,"2026-11-17":PLAN17,"2026-11-20":PLAN20,"2026-11-21":PLAN21,"2026-11-22":PLAN22,"2026-11-23":PLAN23};
 let history={};try{history=JSON.parse(localStorage.getItem(HISTORY_KEY))||{}}catch{history={}};
 const makeBreak=()=>({id:"break-"+crypto.randomUUID(),name:"Перерыв",unit:"break",sets:[],durationSeconds:300,breakElapsedMs:0,breakStartedAt:null,completed:false});
 const localDate=()=>{const d=new Date(),p=n=>String(n).padStart(2,"0");return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
-const fresh=(date=localDate())=>({schemaVersion:1,id:crypto.randomUUID(),date,source:"plans/workout-"+date+".md",status:"planned",startedAt:null,endedAt:null,sessionPausedAt:null,sessionPausedMs:0,activeSetStart:null,activeSetAccumMs:0,activeSetId:null,restDeadline:null,restRemainingMs:90000,restSeconds:90,activeRestSetId:null,restStartedAt:null,restAccumMs:0,exercises:(plans[date]||PLAN17).map((p,i)=>({id:"exercise-"+i,name:p[0],unit:p[4],sets:Array.from({length:p[1]},(_,j)=>({id:"set-"+i+"-"+j,plannedWeightKg:p[3],plannedValue:p[2],weightKg:p[3],value:p[2],completed:false,durationMs:null,restMs:null,restSeconds:90,completedAt:null}))})).flatMap((ex,i)=>date==="2026-11-21"&&i===5?[ex,makeBreak()]:[ex])});
+const fresh=(date=localDate())=>({schemaVersion:1,id:crypto.randomUUID(),date,source:"plans/workout-"+date+".md",status:"planned",startedAt:null,endedAt:null,sessionPausedAt:null,sessionPausedMs:0,activeSetStart:null,activeSetAccumMs:0,activeSetId:null,restDeadline:null,restRemainingMs:90000,restSeconds:90,activeRestSetId:null,restStartedAt:null,restAccumMs:0,exercises:(plans[date]||PLAN17).map((p,i)=>({id:"exercise-"+i,name:p[0],unit:p[4],sets:Array.from({length:p[1]},(_,j)=>({id:"set-"+i+"-"+j,plannedWeightKg:p[3],plannedValue:p[2],weightKg:p[3],value:p[2],completed:false,durationMs:null,restMs:null,restSeconds:90,completedAt:null}))})).flatMap((ex,i)=>date==="2026-11-21"&&i===3?[ex,makeBreak()]:date==="2026-11-23"&&i===6?[ex,makeBreak()]:[ex])});
 let data;try{data=JSON.parse(localStorage.getItem(KEY))}catch{}if(!data||data.schemaVersion!==1)data=fresh();
 if(data&&data.date&&!history[data.date])history[data.date]=data;
 // Repair the incorrectly generated 16 Nov session only if no sets or timers were used.
@@ -29,12 +31,39 @@ if(session20&&session20.exercises?.length===PLAN20.length&&session20.exercises.e
   localStorage.setItem(HISTORY_KEY,JSON.stringify(history));
   localStorage.setItem(KEY,JSON.stringify(data));
 }
-const session21=history["2026-11-21"];
-if(session21&&session21.exercises?.length&&!session21.exercises.some(e=>e.unit==="break")){
- session21.exercises.splice(Math.min(6,session21.exercises.length),0,makeBreak());
- if(data.date==="2026-11-21")data=session21;
- localStorage.setItem(HISTORY_KEY,JSON.stringify(history));localStorage.setItem(KEY,JSON.stringify(data));
+// Upgrade the current day plan by exercise name, preserving all recorded sets, timers, and completed work.
+// Set IDs are never reused or renumbered, and completed workouts are not touched.
+function upgradePlannedSession(date,template,breakAfter){
+ const session=history[date];if(!session||session.endedAt||!Array.isArray(session.exercises))return;
+ const muscles=session.exercises.filter(e=>e.unit!=="break");
+ const isCurrent=muscles.some(e=>e.name==="Отжимания")&&muscles.length<16;
+ if(!isCurrent)return;
+ const used=new Set();
+ const rebuilt=template.map((p,i)=>{
+  const existing=muscles.find(e=>e.name===p[0]&&!used.has(e));
+  if(existing){
+   used.add(existing);
+   // Bring back omitted approaches but keep all entries, including finished ones and edits.
+   while(existing.sets.length<p[1]){
+    const j=existing.sets.length;
+    const seed=existing.sets[0];
+    existing.sets.push({id:"set-"+crypto.randomUUID(),plannedWeightKg:p[3],plannedValue:p[2],weightKg:p[3],value:p[2],completed:false,durationMs:null,restMs:null,restSeconds:seed?.restSeconds||90,completedAt:null});
+   }
+   if(existing.sets.every(z=>!z.completed)&&!session.startedAt)existing.sets.forEach(z=>{z.plannedWeightKg=p[3];z.plannedValue=p[2];z.weightKg=p[3];z.value=p[2]});
+   return existing;
+  }
+  return {id:"exercise-"+crypto.randomUUID(),name:p[0],unit:p[4],sets:Array.from({length:p[1]},()=>({id:"set-"+crypto.randomUUID(),plannedWeightKg:p[3],plannedValue:p[2],weightKg:p[3],value:p[2],completed:false,durationMs:null,restMs:null,restSeconds:90,completedAt:null}))};
+ });
+ // Preserve any additional user-defined exercises without discarding them.
+ for(const extra of muscles)if(!used.has(extra))rebuilt.push(extra);
+ const breaks=session.exercises.filter(e=>e.unit==="break");
+ rebuilt.splice(breakAfter+1,0,...(breaks.length?breaks:[makeBreak()]));
+ session.exercises=rebuilt;
+ history[date]=session;if(data.date===date)data=session;
+ localStorage.setItem(HISTORY_KEY,JSON.stringify(history));
+ localStorage.setItem(KEY,JSON.stringify(data));
 }
+upgradePlannedSession("2026-11-21",PLAN21,3);
 // On launch select the device's current local date; previous dates remain in History.
 const todaysDate=localDate();
 if(data.date!==todaysDate){data=history[todaysDate]||fresh(todaysDate);}
