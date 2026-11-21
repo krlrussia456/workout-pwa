@@ -7,14 +7,14 @@ const PLAN_DATE="2026-11-17";
 const PLAN17=[["Отжимания",2,15,null,"reps","свой вес"],["Обратные скручивания",2,20,null,"reps","без веса"],["Тяга гантели с опорой",3,10,16,"perSide","на руку"],["Мёртвый жук",2,18,null,"perSide","на сторону"],["Жим гантелей лёжа",2,15,14.5,"reps","кг/гантель"],["Жим гантелей узко лёжа",2,12,15,"reps","кг/гантель"],["Ягодичный мост",3,20,null,"reps","без веса"],["Жим гантелей вверх сидя",2,10,15,"reps","до 15 кг"],["Сгибания на бицепс сидя",2,10,15,"perSide","на руку"],["Молотковые сгибания",2,12,15,"perSide","на руку"],["Разгибание на трицепс лёжа",2,12,9,"reps","кг"],["Разведения в стороны сидя",2,12,5,"reps","4–5 кг"],["Обратные разведения сидя",2,12,3,"reps","3–4 кг"],["Шраги сидя",3,15,15,"reps","кг/гантель"],["Прямые скручивания",3,20,null,"reps","без веса"],["Планка",2,45,null,"seconds","секунды"]];
 const PLAN16=[["Обратные скручивания",2,15,null,"reps","без веса"],["Мёртвый жук",2,12,null,"perSide","на сторону"],["Прямые скручивания",2,15,null,"reps","без веса"],["Планка",2,30,null,"seconds","секунды"]];
 const PLAN20=[["Обратные скручивания",3,15,null,"reps","без веса"],["Мёртвый жук",3,12,null,"perSide","на сторону"],["Ягодичный мост",3,20,null,"reps","без веса"],["Планка",3,35,null,"seconds","секунды"]];
-const PLAN21=[["Отжимания",2,15,null,"reps","свой вес"],["Разгибание на трицепс лёжа",2,20,5,"reps","кг/гантель"],["Разведения в стороны сидя",2,12,5,"reps","кг/гантель"],["Обратные разведения сидя",2,12,5,"reps","кг/гантель"],["Тяга гантели с опорой",3,10,15,"perSide","на руку"],["Жим гантелей лёжа",2,15,15,"reps","кг/гантель"],["Жим гантелей узко лёжа",2,12,15,"reps","кг/гантель"],["Жим гантелей вверх сидя",2,10,15,"reps","кг/гантель"],["Сгибания на бицепс сидя",2,10,15,"perSide","на руку"],["Молотковые сгибания",2,12,15,"perSide","на руку"],["Шраги сидя",3,15,15,"reps","кг/гантель"],["Обратные скручивания",2,20,null,"reps","без веса"],["Мёртвый жук",2,18,null,"perSide","на сторону"],["Ягодичный мост",3,20,null,"reps","без веса"],["Прямые скручивания",3,20,null,"reps","без веса"],["Планка",2,45,null,"seconds","секунды"]];
+const PLAN21=[["Отжимания",2,15,null,"reps","свой вес"],["Обратные скручивания",2,20,null,"reps","без веса"],["Разгибание на трицепс лёжа",2,20,5,"reps","кг/гантель"],["Мёртвый жук",2,18,null,"perSide","на сторону"],["Разведения в стороны сидя",2,12,5,"reps","кг/гантель"],["Ягодичный мост",3,20,null,"reps","без веса"],["Обратные разведения сидя",2,12,5,"reps","кг/гантель"],["Тяга гантели с опорой",3,10,15,"perSide","на руку"],["Прямые скручивания",3,20,null,"reps","без веса"],["Жим гантелей лёжа",2,15,15,"reps","кг/гантель"],["Планка",2,45,null,"seconds","секунды"],["Жим гантелей узко лёжа",2,12,15,"reps","кг/гантель"],["Жим гантелей вверх сидя",2,10,15,"reps","кг/гантель"],["Сгибания на бицепс сидя",2,10,15,"perSide","на руку"],["Молотковые сгибания",2,12,15,"perSide","на руку"],["Шраги сидя",3,15,15,"reps","кг/гантель"]];
 const PLAN22=[["Обратные скручивания",3,15,null,"reps","без веса"],["Мёртвый жук",3,12,null,"perSide","на сторону"],["Ягодичный мост",3,20,null,"reps","без веса"],["Планка",3,35,null,"seconds","секунды"]];
-const PLAN23=[["Тяга гантели с опорой",3,10,15,"perSide","на руку"],["Жим гантелей лёжа",2,15,15,"reps","кг/гантель"],["Жим гантелей узко лёжа",2,12,15,"reps","кг/гантель"],["Жим гантелей вверх сидя",2,10,15,"reps","кг/гантель"],["Сгибания на бицепс сидя",2,10,15,"perSide","на руку"],["Молотковые сгибания",2,12,15,"perSide","на руку"],["Шраги сидя",3,15,15,"reps","кг/гантель"],["Разгибание на трицепс лёжа",2,20,5,"reps","кг/гантель"],["Разведения в стороны сидя",2,12,5,"reps","кг/гантель"],["Обратные разведения сидя",2,12,5,"reps","кг/гантель"],["Отжимания",2,15,null,"reps","свой вес"],["Обратные скручивания",2,20,null,"reps","без веса"],["Мёртвый жук",2,18,null,"perSide","на сторону"],["Ягодичный мост",3,20,null,"reps","без веса"],["Прямые скручивания",3,20,null,"reps","без веса"],["Планка",2,45,null,"seconds","секунды"]];
+const PLAN23=[["Тяга гантели с опорой",3,10,15,"perSide","на руку"],["Обратные скручивания",2,20,null,"reps","без веса"],["Жим гантелей лёжа",2,15,15,"reps","кг/гантель"],["Мёртвый жук",2,18,null,"perSide","на сторону"],["Жим гантелей узко лёжа",2,12,15,"reps","кг/гантель"],["Ягодичный мост",3,20,null,"reps","без веса"],["Жим гантелей вверх сидя",2,10,15,"reps","кг/гантель"],["Прямые скручивания",3,20,null,"reps","без веса"],["Сгибания на бицепс сидя",2,10,15,"perSide","на руку"],["Планка",2,45,null,"seconds","секунды"],["Молотковые сгибания",2,12,15,"perSide","на руку"],["Шраги сидя",3,15,15,"reps","кг/гантель"],["Разгибание на трицепс лёжа",2,20,5,"reps","кг/гантель"],["Разведения в стороны сидя",2,12,5,"reps","кг/гантель"],["Обратные разведения сидя",2,12,5,"reps","кг/гантель"],["Отжимания",2,15,null,"reps","свой вес"]];
 const plans={"2026-11-15":PLAN,"2026-11-16":PLAN16,"2026-11-17":PLAN17,"2026-11-20":PLAN20,"2026-11-21":PLAN21,"2026-11-22":PLAN22,"2026-11-23":PLAN23};
 let history={};try{history=JSON.parse(localStorage.getItem(HISTORY_KEY))||{}}catch{history={}};
 const makeBreak=()=>({id:"break-"+crypto.randomUUID(),name:"Перерыв",unit:"break",sets:[],durationSeconds:300,breakElapsedMs:0,breakStartedAt:null,completed:false});
 const localDate=()=>{const d=new Date(),p=n=>String(n).padStart(2,"0");return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
-const fresh=(date=localDate())=>({schemaVersion:1,id:crypto.randomUUID(),date,source:"plans/workout-"+date+".md",status:"planned",startedAt:null,endedAt:null,sessionPausedAt:null,sessionPausedMs:0,activeSetStart:null,activeSetAccumMs:0,activeSetId:null,restDeadline:null,restRemainingMs:90000,restSeconds:90,activeRestSetId:null,restStartedAt:null,restAccumMs:0,exercises:(plans[date]||PLAN17).map((p,i)=>({id:"exercise-"+i,name:p[0],unit:p[4],sets:Array.from({length:p[1]},(_,j)=>({id:"set-"+i+"-"+j,plannedWeightKg:p[3],plannedValue:p[2],weightKg:p[3],value:p[2],completed:false,durationMs:null,restMs:null,restSeconds:90,completedAt:null}))})).flatMap((ex,i)=>date==="2026-11-21"&&i===3?[ex,makeBreak()]:date==="2026-11-23"&&i===6?[ex,makeBreak()]:[ex])});
+const fresh=(date=localDate())=>({schemaVersion:1,id:crypto.randomUUID(),date,source:"plans/workout-"+date+".md",status:"planned",startedAt:null,endedAt:null,sessionPausedAt:null,sessionPausedMs:0,activeSetStart:null,activeSetAccumMs:0,activeSetId:null,restDeadline:null,restRemainingMs:90000,restSeconds:90,activeRestSetId:null,restStartedAt:null,restAccumMs:0,exercises:(plans[date]||PLAN17).map((p,i)=>({id:"exercise-"+i,name:p[0],unit:p[4],sets:Array.from({length:p[1]},(_,j)=>({id:"set-"+i+"-"+j,plannedWeightKg:p[3],plannedValue:p[2],weightKg:p[3],value:p[2],completed:false,durationMs:null,restMs:null,restSeconds:90,completedAt:null}))})).flatMap((ex,i)=>date==="2026-11-21"&&i===6?[ex,makeBreak()]:date==="2026-11-23"&&i===11?[ex,makeBreak()]:[ex])});
 let data;try{data=JSON.parse(localStorage.getItem(KEY))}catch{}if(!data||data.schemaVersion!==1)data=fresh();
 if(data&&data.date&&!history[data.date])history[data.date]=data;
 // Repair the incorrectly generated 16 Nov session only if no sets or timers were used.
@@ -63,7 +63,29 @@ function upgradePlannedSession(date,template,breakAfter){
  localStorage.setItem(HISTORY_KEY,JSON.stringify(history));
  localStorage.setItem(KEY,JSON.stringify(data));
 }
-upgradePlannedSession("2026-11-21",PLAN21,3);
+upgradePlannedSession("2026-11-21",PLAN21,6);
+// Reorder today's existing session once without losing any sets, weights or results.
+function applyAlternatingOrder(date,template,breakAfter){
+ const session=history[date];
+ if(!session||session.endedAt||session.orderingRevision>=2||!Array.isArray(session.exercises))return;
+ const remaining=session.exercises.filter(e=>e.unit!=="break");
+ const breaks=session.exercises.filter(e=>e.unit==="break");
+ const ordered=[];
+ for(const item of template){
+  const index=remaining.findIndex(e=>e.name===item[0]);
+  if(index>=0)ordered.push(...remaining.splice(index,1));
+ }
+ ordered.push(...remaining);
+ ordered.splice(Math.min(ordered.length,breakAfter+1),0,...(breaks.length?breaks:[makeBreak()]));
+ session.exercises=ordered;
+ session.orderingRevision=2;
+ history[date]=session;
+ if(data.date===date)data=session;
+ localStorage.setItem(HISTORY_KEY,JSON.stringify(history));
+ localStorage.setItem(KEY,JSON.stringify(data));
+}
+applyAlternatingOrder("2026-11-21",PLAN21,6);
+applyAlternatingOrder("2026-11-23",PLAN23,11);
 // On launch select the device's current local date; previous dates remain in History.
 const todaysDate=localDate();
 if(data.date!==todaysDate){data=history[todaysDate]||fresh(todaysDate);}
