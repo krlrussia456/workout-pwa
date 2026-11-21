@@ -12,7 +12,7 @@ const plans={"2026-11-15":PLAN,"2026-11-16":PLAN16,"2026-11-17":PLAN17,"2026-11-
 let history={};try{history=JSON.parse(localStorage.getItem(HISTORY_KEY))||{}}catch{history={}};
 const makeBreak=()=>({id:"break-"+crypto.randomUUID(),name:"Перерыв",unit:"break",sets:[],durationSeconds:300,breakElapsedMs:0,breakStartedAt:null,completed:false});
 const localDate=()=>{const d=new Date(),p=n=>String(n).padStart(2,"0");return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
-const fresh=(date=PLAN_DATE)=>({schemaVersion:1,id:crypto.randomUUID(),date,source:"plans/workout-"+date+".md",status:"planned",startedAt:null,endedAt:null,sessionPausedAt:null,sessionPausedMs:0,activeSetStart:null,activeSetAccumMs:0,activeSetId:null,restDeadline:null,restRemainingMs:90000,restSeconds:90,activeRestSetId:null,restStartedAt:null,restAccumMs:0,exercises:(plans[date]||PLAN17).map((p,i)=>({id:"exercise-"+i,name:p[0],unit:p[4],sets:Array.from({length:p[1]},(_,j)=>({id:"set-"+i+"-"+j,plannedWeightKg:p[3],plannedValue:p[2],weightKg:p[3],value:p[2],completed:false,durationMs:null,restMs:null,restSeconds:90,completedAt:null}))})).flatMap((ex,i)=>date==="2026-11-21"&&i===5?[ex,makeBreak()]:[ex])});
+const fresh=(date=localDate())=>({schemaVersion:1,id:crypto.randomUUID(),date,source:"plans/workout-"+date+".md",status:"planned",startedAt:null,endedAt:null,sessionPausedAt:null,sessionPausedMs:0,activeSetStart:null,activeSetAccumMs:0,activeSetId:null,restDeadline:null,restRemainingMs:90000,restSeconds:90,activeRestSetId:null,restStartedAt:null,restAccumMs:0,exercises:(plans[date]||PLAN17).map((p,i)=>({id:"exercise-"+i,name:p[0],unit:p[4],sets:Array.from({length:p[1]},(_,j)=>({id:"set-"+i+"-"+j,plannedWeightKg:p[3],plannedValue:p[2],weightKg:p[3],value:p[2],completed:false,durationMs:null,restMs:null,restSeconds:90,completedAt:null}))})).flatMap((ex,i)=>date==="2026-11-21"&&i===5?[ex,makeBreak()]:[ex])});
 let data;try{data=JSON.parse(localStorage.getItem(KEY))}catch{}if(!data||data.schemaVersion!==1)data=fresh();
 if(data&&data.date&&!history[data.date])history[data.date]=data;
 // Repair the incorrectly generated 16 Nov session only if no sets or timers were used.
@@ -35,6 +35,9 @@ if(session21&&session21.exercises?.length&&!session21.exercises.some(e=>e.unit==
  if(data.date==="2026-11-21")data=session21;
  localStorage.setItem(HISTORY_KEY,JSON.stringify(history));localStorage.setItem(KEY,JSON.stringify(data));
 }
+// On launch select the device's current local date; previous dates remain in History.
+const todaysDate=localDate();
+if(data.date!==todaysDate){data=history[todaysDate]||fresh(todaysDate);}
 const persistHistory=()=>{history[data.date]=data;localStorage.setItem(HISTORY_KEY,JSON.stringify(history))};
 if(data.activeRestSetId===undefined)data.activeRestSetId=null;
 if(data.restStartedAt===undefined)data.restStartedAt=null;
@@ -95,13 +98,35 @@ function completeSet(i,j,checked){if(data.sessionPausedAt||data.endedAt)return;c
 
 let audioContext=null, soundEnabled=localStorage.getItem("workout-sound-enabled")!=="false";
 let soundVolume=Math.min(100,Math.max(0,Number(localStorage.getItem("workout-sound-volume")??"100")));
-const amplified=x=>Math.min(.9,x*2.5*soundVolume/100);
+const amplified=x=>Math.min(.88,x*soundVolume/100);
 function audioReady(){if(!soundEnabled)return null;try{audioContext??=new (window.AudioContext||window.webkitAudioContext)();if(audioContext.state==="suspended")audioContext.resume().catch(()=>{});return audioContext}catch{return null}}
-function tone(freq,at,duration,volume=0.13,type="sine"){const ctx=audioReady();if(!ctx)return;const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,at);gain.gain.setValueAtTime(0.0001,at);gain.gain.exponentialRampToValueAtTime(Math.max(.0001,amplified(volume)),at+0.012);gain.gain.exponentialRampToValueAtTime(0.0001,at+duration);osc.connect(gain).connect(ctx.destination);osc.start(at);osc.stop(at+duration+0.02)}
-function startSound(){const ctx=audioReady();if(!ctx)return;const t=ctx.currentTime+0.03;tone(740,t,0.12);tone(740,t+0.24,0.12);tone(1046,t+0.5,0.38,0.18)}
-function gongSound(){const ctx=audioReady();if(!ctx)return;const t=ctx.currentTime+0.02;for(const [f,v,d] of [[392,.16,2.2],[587.3,.08,1.7],[784,.05,1.3],[1046.5,.025,.9]]){const osc=ctx.createOscillator(),g=ctx.createGain();osc.type="sine";osc.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0001,amplified(v)),t+.025);g.gain.exponentialRampToValueAtTime(.0001,t+d);osc.connect(g).connect(ctx.destination);osc.start(t);osc.stop(t+d+.03)}}
+// Sharper, high-energy alerts are more audible through phone speakers than sine chimes.
+function tone(freq,at,duration,volume=0.65,type="square"){
+ const ctx=audioReady();if(!ctx)return;
+ const osc=ctx.createOscillator(),gain=ctx.createGain();
+ osc.type=type;osc.frequency.setValueAtTime(freq,at);
+ const loudness=Math.max(.0001,amplified(volume));
+ gain.gain.setValueAtTime(.0001,at);
+ gain.gain.exponentialRampToValueAtTime(loudness,at+.014);
+ gain.gain.setValueAtTime(loudness,at+Math.max(.018,duration-.06));
+ gain.gain.exponentialRampToValueAtTime(.0001,at+duration);
+ osc.connect(gain).connect(ctx.destination);
+ osc.start(at);osc.stop(at+duration+.02);
+}
+function startSound(){
+ const ctx=audioReady();if(!ctx)return;
+ const t=ctx.currentTime+.04;
+ tone(880,t,.18,.65);tone(1046,t+.25,.18,.65);tone(1320,t+.5,.36,.7);
+}
+function gongSound(){
+ const ctx=audioReady();if(!ctx)return;
+ const t=ctx.currentTime+.04;
+ // Repeated alarm pulses instead of a quiet low-frequency sine gong.
+ for(let i=0;i<5;i++)tone(i%2?1180:940,t+i*.32,.23,.75);
+ tone(1320,t+1.68,.65,.72);
+}
 let timedGongSetId=null, timedLastBeepSecond=null;
-function countdownBeep(second){const ctx=audioReady();if(!ctx)return;tone(second===1?1046:660,ctx.currentTime+0.01,0.11,0.12)}
+function countdownBeep(second){const ctx=audioReady();if(!ctx)return;tone(second===1?1320:880,ctx.currentTime+0.01,0.19,.7)}
 function refreshSoundButton(){
  $("timed-sound").textContent=soundEnabled?"🔊 Звук включён":"🔇 Без звука";
  $("sound-enabled").checked=soundEnabled;
