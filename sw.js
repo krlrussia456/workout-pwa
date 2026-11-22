@@ -1,5 +1,5 @@
-const CACHE="food-diary-workout-v28";
-const FILES=["./","./index.html","./app.js?v=20261122-28","./manifest.webmanifest","./icon.svg"];
+const CACHE="food-diary-workout-v29";
+const FILES=["./","./index.html","./app.js?v=20261122-29","./manifest.webmanifest","./icon.svg"];
 self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith("food-diary-workout-")&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
 self.addEventListener("fetch",event=>{const request=event.request,url=new URL(request.url);if(request.method!=="GET"||url.origin!==self.location.origin)return;
