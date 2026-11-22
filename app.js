@@ -140,10 +140,21 @@ for(const ex of data.exercises)for(const set of ex.sets)if(set.restSeconds===und
 const $=id=>document.getElementById(id),fmt=ms=>{const s=Math.max(0,Math.floor(ms/1000));return (s>=3600?String(Math.floor(s/3600)).padStart(2,"0")+":":"")+String(Math.floor(s/60)%60).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(data));persistHistory();$("status").textContent="Локально сохранено"}catch(e){$("status").textContent="Ошибка сохранения: "+e.message}};
 const esc=x=>String(x).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function guideHTML(name){
+ const info=window.EXERCISE_GUIDES?.[name];
+ if(!info)return '<div class="guide-unavailable">Описание пока не добавлено.</div>';
+ const steps=(info.steps||[]).map(step=>'<li>'+esc(step)+'</li>').join("");
+ const note=info.note?'<p class="guide-note">'+esc(info.note)+'</p>':"";
+ const img=info.image?'<img class="guide-media" src="'+esc(info.image)+'" alt="Демонстрация техники: '+esc(name)+'" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><p class="guide-unavailable" hidden>Изображение не загрузилось. Открой ссылку на первоисточник.</p>':"";
+ const link=info.page?'<a class="guide-source" href="'+esc(info.page)+'" target="_blank" rel="noopener noreferrer">Смотреть первоисточник и '+(info.animated?"анимацию":"демонстрацию")+' ↗</a>':"";
+ return '<details class="exercise-guide"><summary>📖 Техника и '+(info.animated?"анимация":"изображение")+'</summary><div class="guide-body">'+img+'<ol class="guide-steps">'+steps+'</ol><p class="guide-mistake"><strong>Избегай:</strong> '+esc(info.mistake||"")+'</p>'+note+link+'</div></details>';
+}
 function render(){
-const opened=[...document.querySelectorAll("#exercises details")].filter(e=>e.open).map(e=>e.dataset.exerciseId);
-$("exercises").innerHTML=data.exercises.map((ex,i)=>ex.unit==="break"?'<section class="panel break-block" data-break-id="'+esc(ex.id)+'"><div class="flex"><strong>☕ Перерыв</strong><span class="clock break-clock">05:00</span></div><div class="break-controls"><label>Минуты<input class="break-duration" data-break-i="'+i+'" type="number" min="1" max="120" value="'+Math.round(ex.durationSeconds/60)+'"></label><button class="btn primary break-toggle" data-break-i="'+i+'">▶ Старт</button><button class="btn break-reset" data-break-i="'+i+'">Сбросить</button><button class="btn break-finish" data-break-i="'+i+'">✓ Завершить</button></div><div class="move-actions"><button class="btn move-exercise" data-move-i="'+i+'" data-move-dir="-1" '+(i===0?'disabled':'')+'>↑ Выше</button><button class="btn move-exercise" data-move-i="'+i+'" data-move-dir="1" '+(i===data.exercises.length-1?'disabled':'')+'>↓ Ниже</button><button class="btn remove-break" data-break-i="'+i+'">Удалить</button></div></section>':'<details class="panel exercise" data-exercise-id="'+esc(ex.id)+'" '+(i===0?'open':'')+'><summary>'+esc((i+1)+". "+ex.name)+' <small>'+ex.sets.filter(s=>s.completed).length+'/'+ex.sets.length+' подходов</small></summary><div class="set sethead"><span>№</span><span>Вес, кг</span><span>'+(ex.unit==="seconds"?"Секунды":"Повторы")+'</span><span>✓</span></div>'+ex.sets.map((s,j)=>'<div class="set"><span>'+(j+1)+'</span><input aria-label="Вес" type="number" min="0" step="0.5" data-i="'+i+'" data-j="'+j+'" data-field="weightKg" value="'+(s.weightKg??"")+'" placeholder="—"><input aria-label="Повторы или секунды" type="number" min="0" step="1" data-i="'+i+'" data-j="'+j+'" data-field="value" value="'+s.value+'"><input aria-label="Подход выполнен" type="checkbox" data-i="'+i+'" data-j="'+j+'" data-field="completed" '+(s.completed?"checked":"")+'></div><div class="flex" style="margin-top:8px;flex-wrap:wrap"><small class="muted">Подход: '+(s.durationMs===null?"—":fmt(s.durationMs))+'</small><button type="button" class="btn set-timer" data-timer-i="'+i+'" data-timer-j="'+j+'">▶ Подход</button><button type="button" class="btn set-done" data-done-i="'+i+'" data-done-j="'+j+'">✓ Завершить</button></div><div class="flex" style="margin-top:8px;gap:8px;flex-wrap:wrap"><label style="font-size:13px">Отдых, сек <input aria-label="Отдых после подхода, секунды" style="width:85px" type="number" min="0" max="3600" step="5" data-i="'+i+'" data-j="'+j+'" data-field="restSeconds" value="'+s.restSeconds+'"></label><button type="button" class="btn rest-set" data-rest-i="'+i+'" data-rest-j="'+j+'">▶ Отдых</button><small class="muted rest-value" data-rest-i="'+i+'" data-rest-j="'+j+'">'+(s.restMs===null?"Не начат":fmt(s.restMs))+'</small></div>').join("")+'<div class="move-actions"><button class="btn move-exercise" data-move-i="'+i+'" data-move-dir="-1" '+(i===0?'disabled':'')+'>↑ Выше</button><button class="btn move-exercise" data-move-i="'+i+'" data-move-dir="1" '+(i===data.exercises.length-1?'disabled':'')+'>↓ Ниже</button><button class="btn add-break-after" data-after-i="'+i+'">＋ Перерыв после</button></div></details>').join("");
-if(opened.length)document.querySelectorAll("#exercises details").forEach(e=>e.open=opened.includes(e.dataset.exerciseId));
+const opened=[...document.querySelectorAll("#exercises details.exercise")].filter(e=>e.open).map(e=>e.dataset.exerciseId);
+const openedGuides=[...document.querySelectorAll("#exercises details.exercise-guide")].filter(e=>e.open).map(e=>e.closest("details.exercise")?.dataset.exerciseId);
+$("exercises").innerHTML=data.exercises.map((ex,i)=>ex.unit==="break"?'<section class="panel break-block" data-break-id="'+esc(ex.id)+'"><div class="flex"><strong>☕ Перерыв</strong><span class="clock break-clock">05:00</span></div><div class="break-controls"><label>Минуты<input class="break-duration" data-break-i="'+i+'" type="number" min="1" max="120" value="'+Math.round(ex.durationSeconds/60)+'"></label><button class="btn primary break-toggle" data-break-i="'+i+'">▶ Старт</button><button class="btn break-reset" data-break-i="'+i+'">Сбросить</button><button class="btn break-finish" data-break-i="'+i+'">✓ Завершить</button></div><div class="move-actions"><button class="btn move-exercise" data-move-i="'+i+'" data-move-dir="-1" '+(i===0?'disabled':'')+'>↑ Выше</button><button class="btn move-exercise" data-move-i="'+i+'" data-move-dir="1" '+(i===data.exercises.length-1?'disabled':'')+'>↓ Ниже</button><button class="btn remove-break" data-break-i="'+i+'">Удалить</button></div></section>':'<details class="panel exercise" data-exercise-id="'+esc(ex.id)+'" '+(i===0?'open':'')+'><summary>'+esc((i+1)+". "+ex.name)+' <small>'+ex.sets.filter(s=>s.completed).length+'/'+ex.sets.length+' подходов</small></summary>'+guideHTML(ex.name)+'<div class="set sethead"><span>№</span><span>Вес, кг</span><span>'+(ex.unit==="seconds"?"Секунды":"Повторы")+'</span><span>✓</span></div>'+ex.sets.map((s,j)=>'<div class="set"><span>'+(j+1)+'</span><input aria-label="Вес" type="number" min="0" step="0.5" data-i="'+i+'" data-j="'+j+'" data-field="weightKg" value="'+(s.weightKg??"")+'" placeholder="—"><input aria-label="Повторы или секунды" type="number" min="0" step="1" data-i="'+i+'" data-j="'+j+'" data-field="value" value="'+s.value+'"><input aria-label="Подход выполнен" type="checkbox" data-i="'+i+'" data-j="'+j+'" data-field="completed" '+(s.completed?"checked":"")+'></div><div class="flex" style="margin-top:8px;flex-wrap:wrap"><small class="muted">Подход: '+(s.durationMs===null?"—":fmt(s.durationMs))+'</small><button type="button" class="btn set-timer" data-timer-i="'+i+'" data-timer-j="'+j+'">▶ Подход</button><button type="button" class="btn set-done" data-done-i="'+i+'" data-done-j="'+j+'">✓ Завершить</button></div><div class="flex" style="margin-top:8px;gap:8px;flex-wrap:wrap"><label style="font-size:13px">Отдых, сек <input aria-label="Отдых после подхода, секунды" style="width:85px" type="number" min="0" max="3600" step="5" data-i="'+i+'" data-j="'+j+'" data-field="restSeconds" value="'+s.restSeconds+'"></label><button type="button" class="btn rest-set" data-rest-i="'+i+'" data-rest-j="'+j+'">▶ Отдых</button><small class="muted rest-value" data-rest-i="'+i+'" data-rest-j="'+j+'">'+(s.restMs===null?"Не начат":fmt(s.restMs))+'</small></div>').join("")+'<div class="move-actions"><button class="btn move-exercise" data-move-i="'+i+'" data-move-dir="-1" '+(i===0?'disabled':'')+'>↑ Выше</button><button class="btn move-exercise" data-move-i="'+i+'" data-move-dir="1" '+(i===data.exercises.length-1?'disabled':'')+'>↓ Ниже</button><button class="btn add-break-after" data-after-i="'+i+'">＋ Перерыв после</button></div></details>').join("");
+if(opened.length)document.querySelectorAll("#exercises details.exercise").forEach(e=>e.open=opened.includes(e.dataset.exerciseId));
+if(openedGuides.length)document.querySelectorAll("#exercises details.exercise-guide").forEach(e=>e.open=openedGuides.includes(e.closest("details.exercise")?.dataset.exerciseId));
 $("restchoice").value=String(data.restSeconds);update();
 }
 function elapsed(){if(!data.startedAt)return 0;const end=data.endedAt||Date.now();return Math.max(0,end-data.startedAt-data.sessionPausedMs-(data.sessionPausedAt?end-data.sessionPausedAt:0))}
@@ -194,33 +205,37 @@ let audioContext=null, soundEnabled=localStorage.getItem("workout-sound-enabled"
 let soundVolume=Math.min(100,Math.max(0,Number(localStorage.getItem("workout-sound-volume")??"100")));
 const amplified=x=>Math.min(.88,x*soundVolume/100);
 function audioReady(){if(!soundEnabled)return null;try{audioContext??=new (window.AudioContext||window.webkitAudioContext)();if(audioContext.state==="suspended")audioContext.resume().catch(()=>{});return audioContext}catch{return null}}
-// Sharper, high-energy alerts are more audible through phone speakers than sine chimes.
-function tone(freq,at,duration,volume=0.65,type="square"){
+// Gentle bell: sine wave with a subtle harmonic and a smooth, decaying envelope.
+function tone(freq,at,duration,volume=0.65){
  const ctx=audioReady();if(!ctx)return;
- const osc=ctx.createOscillator(),gain=ctx.createGain();
- osc.type=type;osc.frequency.setValueAtTime(freq,at);
- const loudness=Math.max(.0001,amplified(volume));
- gain.gain.setValueAtTime(.0001,at);
- gain.gain.exponentialRampToValueAtTime(loudness,at+.014);
- gain.gain.setValueAtTime(loudness,at+Math.max(.018,duration-.06));
- gain.gain.exponentialRampToValueAtTime(.0001,at+duration);
- osc.connect(gain).connect(ctx.destination);
- osc.start(at);osc.stop(at+duration+.02);
+ const amp=Math.max(.0001,amplified(volume));
+ const envelope=ctx.createGain();
+ envelope.gain.setValueAtTime(.0001,at);
+ envelope.gain.exponentialRampToValueAtTime(amp,at+.028);
+ envelope.gain.exponentialRampToValueAtTime(.0001,at+duration);
+ envelope.connect(ctx.destination);
+ for(const [mult,level] of [[1,1],[2,.16]]){
+  const osc=ctx.createOscillator(),partial=ctx.createGain();
+  osc.type="sine";osc.frequency.setValueAtTime(freq*mult,at);
+  partial.gain.value=level;osc.connect(partial).connect(envelope);
+  osc.start(at);osc.stop(at+duration+.04);
+ }
 }
 function startSound(){
  const ctx=audioReady();if(!ctx)return;
- const t=ctx.currentTime+.04;
- tone(880,t,.18,.65);tone(1046,t+.25,.18,.65);tone(1320,t+.5,.36,.7);
+ const t=ctx.currentTime+.03;
+ tone(523.25,t,.38,.35);tone(659.25,t+.18,.48,.32);
 }
 function gongSound(){
  const ctx=audioReady();if(!ctx)return;
- const t=ctx.currentTime+.04;
- // Repeated alarm pulses instead of a quiet low-frequency sine gong.
- for(let i=0;i<5;i++)tone(i%2?1180:940,t+i*.32,.23,.75);
- tone(1320,t+1.68,.65,.72);
+ const t=ctx.currentTime+.03;
+ tone(523.25,t,.56,.42);tone(659.25,t+.17,.61,.37);tone(783.99,t+.34,.90,.40);
 }
-let timedGongSetId=null, timedLastBeepSecond=null;
-function countdownBeep(second){const ctx=audioReady();if(!ctx)return;tone(second===1?1320:880,ctx.currentTime+0.01,0.19,.7)}
+let timedGongSetId=null,timedLastBeepSecond=null;
+function countdownBeep(second){
+ const ctx=audioReady();if(!ctx)return;
+ tone(second===1?659.25:523.25,ctx.currentTime+.015,second===1?.31:.22,.28);
+}
 function refreshSoundButton(){
  $("timed-sound").textContent=soundEnabled?"🔊 Звук включён":"🔇 Без звука";
  $("sound-enabled").checked=soundEnabled;
