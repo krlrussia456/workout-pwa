@@ -1,19 +1,10 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f6f7f7"><title>Моё здоровье — дашборд</title>
-<link rel="stylesheet" href="./dashboard.css?v=20261122-1"></head><body>
+<link rel="stylesheet" href="./dashboard.css?v=20261122-2"></head><body>
 <main class="shell">
-<header class="top"><div><div class="eyebrow">ЛИЧНЫЙ ДНЕВНИК · АНАЛИТИКА</div><h1>Моё <span>здоровье</span></h1></div><nav><a href="./index.html">🏋️ Тренировки</a><button id="logout" class="ghost" hidden>Выйти</button></nav></header>
-<section id="login-view" class="login-layout">
-<div class="login-info"><div class="overline">АНАЛИТИКА ЗДОРОВЬЯ</div><h2>Твои показатели.<br>В одном месте.</h2><p>Динамика веса, талии, КБЖУ, активности и тренировок. Один день или любой диапазон — только реальные записи твоего дневника.</p><div class="login-bullets"><span>↗ Графики по датам</span><span>◉ Средние значения за период</span><span>▣ Детализация каждого дня</span></div></div>
-<form class="login-card" id="login-form">
-<div class="login-icon">🔒</div><h3>Вход в личный дашборд</h3><p class="muted">Данные находятся в приватном репозитории GitHub. Вход выполняется по имени GitHub и персональному токену доступа, <strong>не паролю от аккаунта</strong>.</p>
-<label for="username">Логин GitHub</label><input id="username" type="text" placeholder="Имя пользователя GitHub" autocomplete="username" value="krlrussia456" required>
-<label for="token">Секретный ключ доступа (GitHub token)</label><input id="token" type="password" placeholder="github_pat_..." autocomplete="off" required>
-<button type="submit" class="primary" id="login-submit">Открыть дашборд</button><p id="login-error" role="alert" class="error" hidden></p>
-<p class="small-note">Токен должен иметь право Contents: Read к приватному репозиторию food-diary. Хранится только в этой вкладке (sessionStorage), не отправляется на сайт-аналитику: запросы идут напрямую к GitHub API. Не вводи обычный пароль GitHub.</p>
-</form></section>
-<section id="dashboard-view" hidden>
+<header class="top"><div><div class="eyebrow">ЛИЧНЫЙ ДНЕВНИК · АНАЛИТИКА</div><h1>Моё <span>здоровье</span></h1></div><nav><a href="./index.html">🏋️ Тренировки</a></nav></header>
+<section id="dashboard-view">
 <div class="intro"><div><div class="overline">ЗДОРОВЬЕ · ДИНАМИКА</div><h2>Персональный дашборд</h2><p class="muted" id="data-status">Загрузка записей…</p></div><button class="ghost" id="refresh">↻ Обновить данные</button></div>
 <div class="controls card">
 <div class="segmented" role="group" aria-label="Режим периода"><button data-mode="day" class="selected">Один день</button><button data-mode="range">Период</button></div>
@@ -31,7 +22,7 @@
 </div>
 <div class="details-grid"><article class="card"><h3>Питание и цели</h3><p class="muted" id="nutrition-subtitle"></p><div id="macro-bars"></div><p class="small-note">В периоде указаны средние по дням с записями. Отсутствующие дни не принимаются за ноль.</p></article>
 <article class="card"><h3>Тренировки</h3><div id="training-info"></div><p class="small-note">Учитываются только выполненные подходы из файлов тренировок. Планы не считаются выполнением.</p></article></div>
-<article class="card diary"><div class="card-heading"><div><h3>Дневник по дням</h3><p class="muted">Раскрывай день для списка продуктов</p></div></div><div id="daily-table"></div></article>
-<footer>Данные: приватный репозиторий GitHub · ориентировочные КБЖУ зависят от точности записей · v1.0</footer>
+<article class="card diary"><div class="card-heading"><div><h3>Дневник по дням</h3><p class="muted">Только числовые показатели, без подробностей питания</p></div></div><div id="daily-table"></div></article>
+<footer>Данные: обезличенная статистика из публичного workout-pwa · КБЖУ ориентировочные · v1.1</footer>
 </section>
-</main><script src="./dashboard.js?v=20261122-1" defer></script></body></html>
+</main><script src="./dashboard.js?v=20261122-2" defer></script></body></html>
