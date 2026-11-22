@@ -3,7 +3,7 @@ const REPO="krlrussia456/food-diary",API="https://api.github.com/repos/"+REPO+"/
 const GOALS={kcal:1800,protein:160,fat:60,carbs:155};
 const $=id=>document.getElementById(id);
 const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const num=n=>Number.isFinite(Number(n))?Number(n):null,fmt=(n,d=0)=>n==null||!Number.isFinite(n)?"—":n.toLocaleString("ru-RU",{maximumFractionDigits:d,minimumFractionDigits:d});
+const num=n=>(n===null||n===undefined||String(n).trim()==="")?null:Number.isFinite(Number(n))?Number(n):null,fmt=(n,d=0)=>n==null||!Number.isFinite(n)?"—":n.toLocaleString("ru-RU",{maximumFractionDigits:d,minimumFractionDigits:d});
 const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")};
 const shift=(s,n)=>{const d=new Date(s+"T12:00:00");d.setDate(d.getDate()+n);return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")};
 const formatDate=d=>{const [y,m,day]=d.split("-");return day+"."+m+"."+y};
